@@ -143,7 +143,7 @@ namespace noggit
 
       layout->addWidget(options_group);
 
-      connect ( _type_button_group, qOverload<int> (&QButtonGroup::buttonClicked)
+      connect ( _type_button_group, &QButtonGroup::idClicked
               , [&] (int id)
                 {
                   _edit_type = static_cast<eTerrainType> (id);
@@ -151,7 +151,7 @@ namespace noggit
                 }
               );
 
-      connect ( _vertex_button_group, qOverload<int> (&QButtonGroup::buttonClicked)
+      connect ( _vertex_button_group, &QButtonGroup::idClicked
               , [&] (int id)
                 {
                   _vertex_mode = id;

@@ -32,7 +32,6 @@
 
 #include <QtCore/QTimer>
 #include <QtGui/QOffscreenSurface>
-#include <QtOpenGL/QGLFormat>
 #include <QtCore/QDir>
 #include <QtWidgets/QApplication>
 #include <QtWidgets/QFileDialog>
@@ -292,11 +291,6 @@ Noggit::Noggit(int argc, char *argv[])
   loadMPQs(); // listfiles are not available straight away! They are async! Do not rely on anything at this point!
   OpenDBs();
 
-  if (!QGLFormat::hasOpenGL())
-  {
-    throw std::runtime_error ("Your system does not support OpenGL. Sorry, this application can't run without it.");
-  }
-
   QSurfaceFormat format;
 
   format.setRenderableType(QSurfaceFormat::OpenGL);
@@ -321,10 +315,18 @@ Noggit::Noggit(int argc, char *argv[])
   QSurfaceFormat::setDefaultFormat (format);
 
   QOpenGLContext context;
-  context.create();
+  context.setFormat(format);
+  if (!context.create())
+  {
+    throw std::runtime_error ("Your system could not create the required OpenGL 4.1 core context.");
+  }
   QOffscreenSurface surface;
+  surface.setFormat(context.format());
   surface.create();
-  context.makeCurrent (&surface);
+  if (!context.makeCurrent (&surface))
+  {
+    throw std::runtime_error ("The required OpenGL 4.1 core context could not be made current.");
+  }
 
   success = true;
 

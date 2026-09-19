@@ -71,7 +71,7 @@ namespace noggit
       mode_button_group->addButton(chunk_button, 0);
       mode_button_group->addButton(adt_button, 1);
 
-      connect ( mode_button_group, qOverload<int>(&QButtonGroup::buttonClicked)
+      connect ( mode_button_group, &QButtonGroup::idClicked
               , [&](int id) { _mode = id; }
               );
 

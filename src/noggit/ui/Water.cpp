@@ -170,7 +170,7 @@ namespace noggit
       transparency_toggle->addButton (ocean_button, static_cast<int>(water_opacity::ocean_opacity));
       transparency_toggle->addButton (custom_button, static_cast<int>(water_opacity::custom_opacity));
 
-      connect ( transparency_toggle, qOverload<int> (&QButtonGroup::buttonClicked)
+      connect ( transparency_toggle, &QButtonGroup::idClicked
               , [&] (int id) { _opacity_mode = static_cast<water_opacity>(id); }
               );
 

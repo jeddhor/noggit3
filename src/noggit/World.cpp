@@ -26,9 +26,7 @@
 
 #include <QtWidgets/QMessageBox>
 #include <QtGui/QOffscreenSurface>
-#include <QtGui/QOpenGLFramebufferObjectFormat>
 #include <QtGui/QPixmap>
-#include <QtOpenGL/QGLPixelBuffer>
 
 #include <algorithm>
 #include <cassert>

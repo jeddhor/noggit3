@@ -9,9 +9,9 @@
 
 #include <QtCore/QString>
 #include <QtGui/QOffscreenSurface>
-#include <QtGui/QOpenGLFramebufferObjectFormat>
 #include <QtGui/QPixmap>
-#include <QtOpenGL/QGLPixelBuffer>
+#include <QtOpenGL/QOpenGLFramebufferObject>
+#include <QtOpenGL/QOpenGLFramebufferObjectFormat>
 
 #include <algorithm>
 

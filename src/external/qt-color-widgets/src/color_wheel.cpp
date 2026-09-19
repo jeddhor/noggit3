@@ -63,7 +63,9 @@ public:
         : w(widget), hue(0), sat(0), val(0),
         wheel_width(20), mouse_status(Nothing),
         display_flags(FLAGS_DEFAULT),
-        color_from(&QColor::fromHsvF), rainbow_from_hue(&detail::rainbow_hsv)
+        color_from([](qreal hue, qreal saturation, qreal value, qreal alpha) {
+            return QColor::fromHsvF(hue, saturation, value, alpha);
+        }), rainbow_from_hue(&detail::rainbow_hsv)
     { }
 
     /// Calculate outer wheel radius from idget center
@@ -495,7 +497,9 @@ void ColorWheel::setDisplayFlags(DisplayFlags flags)
             p->hue = old_col.hsvHueF();
             p->sat = old_col.hsvSaturationF();
             p->val = old_col.valueF();
-            p->color_from = &QColor::fromHsvF;
+            p->color_from = [](qreal hue, qreal saturation, qreal value, qreal alpha) {
+                return QColor::fromHsvF(hue, saturation, value, alpha);
+            };
             p->rainbow_from_hue = &detail::rainbow_hsv;
         }
         p->render_ring();

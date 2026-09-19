@@ -42,7 +42,7 @@ namespace noggit
       group->button (cursor_type.get())->setChecked (true);
 
       connect ( group
-              , qOverload<int> (&QButtonGroup::buttonClicked)
+              , &QButtonGroup::idClicked
                , [&] (int id)
                  {
                    QSignalBlocker const blocker(&cursor_type);

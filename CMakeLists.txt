@@ -137,7 +137,7 @@ if (WIN32)
 endif()
 
 FIND_PACKAGE( OpenGL REQUIRED )
-find_package (Qt5 COMPONENTS Widgets OpenGL OpenGLExtensions)
+find_package (Qt6 6.2 REQUIRED COMPONENTS Widgets OpenGL OpenGLWidgets)
 find_package (Threads REQUIRED)
 
 if (USE_SQL)
@@ -469,7 +469,6 @@ set ( scripting_headers
   )
 
 set ( opengl_headers
-      src/opengl/arb_bindless_texture_ext.hpp
       src/opengl/context.hpp
       src/opengl/primitives.hpp
       src/opengl/scoped.hpp
@@ -540,7 +539,7 @@ list (APPEND headers_to_moc
   src/noggit/unsigned_int_property.hpp
   src/noggit/ui/CurrentTexture.h
 )
-qt5_wrap_cpp (moced ${headers_to_moc} ${headers_to_moc})
+qt6_wrap_cpp (moced ${headers_to_moc})
 
 source_group("noggit"  FILES ${noggit_root_sources} ${noggit_root_headers})
 source_group("noggit\\ui"  FILES ${noggit_ui_sources} ${noggit_ui_headers})
@@ -554,7 +553,7 @@ if (NOGGIT_WITH_SCRIPTING)
   source_group ("scripting" FILES ${scripting_sources} ${scripting_headers})
 endif()
 
-qt5_add_resources (compiled_resource_files "resources/resources.qrc")
+qt6_add_resources (compiled_resource_files "resources/resources.qrc")
 
 ADD_EXECUTABLE ( noggit
                   WIN32
@@ -589,10 +588,10 @@ endif()
 TARGET_LINK_LIBRARIES (noggit
   ${OPENGL_LIBRARIES}
   Threads::Threads
-  Qt5::Widgets
-  Qt5::OpenGL
-  Qt5::OpenGLExtensions
-  ColorWidgets-qt5
+  Qt6::Widgets
+  Qt6::OpenGL
+  Qt6::OpenGLWidgets
+  ColorWidgets-qt6
 )
 
 set (_noggit_revision_output_dir "${CMAKE_BINARY_DIR}/revision_output")
@@ -653,7 +652,7 @@ if (NOT APPLE)
     install (FILES $<TARGET_PDB_FILE:noggit> DESTINATION . OPTIONAL)
   endif()
 
-  # todo: Qt5{Core,Gui,OpenGL,Widgets}.dll
+  # todo: Qt6{Core,Gui,OpenGL,OpenGLWidgets,Widgets}.dll
   # todo: platforms/q{windows,direct2d}.dll
   # todo: if shared: dependencies!
 
@@ -718,12 +717,9 @@ FetchContent_Declare (storm
   GIT_REPOSITORY https://github.com/ladislav-zezula/StormLib.git
   GIT_TAG v9.30
 )
-FetchContent_GetProperties (storm)
-if (NOT storm_POPULATED)
-  message (STATUS "Installing StormLib...")
-  FetchContent_Populate (storm)
-endif()
-add_subdirectory (${storm_SOURCE_DIR} ${storm_BINARY_DIR} EXCLUDE_FROM_ALL)
+message (STATUS "Installing StormLib...")
+FetchContent_MakeAvailable (storm)
+set_property (DIRECTORY "${storm_SOURCE_DIR}" PROPERTY EXCLUDE_FROM_ALL YES)
 set (storm_warning_disable_flags "")
 add_local_compiler_flag_if_supported (-Wno-implicit-function-declaration storm_warning_disable_flags)
 target_compile_options (storm PRIVATE ${storm_warning_disable_flags})

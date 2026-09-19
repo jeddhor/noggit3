@@ -21,7 +21,7 @@
 #include <QtCore/QTimer>
 #include <QtWidgets/QDockWidget>
 #include <QtWidgets/QLabel>
-#include <QtWidgets/QOpenGLWidget>
+#include <QtOpenGLWidgets/QOpenGLWidget>
 #include <QWidgetAction>
 
 #include <forward_list>
@@ -252,7 +252,7 @@ private:
   virtual void initializeGL() override;
   virtual void paintGL() override;
   virtual void resizeGL (int w, int h) override;
-  virtual void enterEvent(QEvent*) override;
+  virtual void enterEvent(QEnterEvent*) override;
   virtual void mouseMoveEvent (QMouseEvent*) override;
   virtual void mousePressEvent (QMouseEvent*) override;
   virtual void mouseReleaseEvent (QMouseEvent*) override;

@@ -117,7 +117,7 @@ namespace noggit
       flatten_only_layout->addRow(_lock_group);
       layout->addRow(flatten_only_group);
 
-      connect ( _type_button_box, qOverload<int> (&QButtonGroup::buttonClicked)
+      connect ( _type_button_box, &QButtonGroup::idClicked
               , [&] (int id)
                 {
                   _flatten_type = id;

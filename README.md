@@ -1,3 +1,7 @@
+# QT 6 PORT NOTICE #
+This fork has been modified to build and run with Qt 6 instead of Qt 5. The
+build requirements and instructions below describe the Qt 6 version.
+
 # LICENSE #
 This software is open source software licensed under GPL3, as found in
 the COPYING file.
@@ -13,7 +17,7 @@ This project requires CMake to be built. It also requires the
 following libraries:
 
 * OpenGL
-* Qt 5
+* Qt 6.2 or newer (Core, Gui, Widgets, OpenGL, and OpenGLWidgets)
 
 Further following libraries are required for MySQL GUID Storage builds:
 
@@ -39,12 +43,8 @@ corresponding versions for other dependencies.
 ### CMake ###
 Any recent CMake version >= 3.18 should work. Just take the latest.
 
-### Qt5 ###
-Install Qt5 to `<Qt-install>`
-
-The recommended Qt version for noggit is 5.9, which can be downloaded from https://download.qt.io/new_archive/qt/5.9/5.9.9/qt-opensource-windows-x86-5.9.9.exe.
-
-If you want to try a newer version, you can download the online installer from https://www.qt.io/download-open-source/#section-2.
+### Qt 6 ###
+Install Qt 6.2 or newer to `<Qt-install>` using the Qt online installer.
 
 Note that during installation you only need **one** version of Qt and
 also only **one** compiler version. If download size is noticably large
@@ -64,7 +64,7 @@ _(Not necessary if disabling `NOGGIT_WITH_SCRIPTING`)_
 ### Noggit ###
 * open CMake GUI
 * set `CMAKE_PREFIX_PATH` (path) to `"<Qt-install>"`,
-  e.g. `"C:/Qt/5.6/msvc2015"`
+  e.g. `"C:/Qt/6.8.3/msvc2022_64"`
 * set `CMAKE_INSTALL_PREFIX` (path) to an empty destination, e.g. 
   `"C:/Users/blurb/Documents/noggitinstall`
 * set `LUA_INCLUDE_DIR` to `<Lua-install>/src`
@@ -78,8 +78,8 @@ To launch noggit you will need the following DLLs from Qt loadable. Install
 them in the system, or copy them from `C:/Qt/X.X/msvcXXXX/bin` into the
 directory containing noggit.exe, i.e. `CMAKE_INSTALL_PREFIX` configured.
 
-* release: Qt5Core, Qt5OpenGL, Qt5Widgets, Qt5Gui
-* debug: Qt5Cored, Qt5OpenGLd, Qt5Widgetsd, Qt5Guid 
+* release: Qt6Core, Qt6Gui, Qt6OpenGL, Qt6OpenGLWidgets, Qt6Widgets
+* debug: Qt6Cored, Qt6Guid, Qt6OpenGLd, Qt6OpenGLWidgetsd, Qt6Widgetsd
 
 * If using scripting, you will also need to copy `<Lua-install>/src/lua51.dll` to `CMAKE_INSTALL_PREFIX`
 
@@ -92,7 +92,7 @@ These instructions assume a working directory `<Linux-Build>`, for example `/hom
 On **Ubuntu** you can install the building requirements using:
 
 ```bash
-sudo apt install freeglut3-dev qt5-default libsdl2-dev libbz2-dev
+sudo apt install build-essential cmake git ninja-build libbz2-dev libgl-dev zlib1g-dev qt6-base-dev libqt6opengl6-dev
 ```
 
 ### LuaJIT ###
@@ -117,19 +117,16 @@ git clone https://github.com/wowdev/noggit3
 
 `<Linux-Build>/noggit3` should now exist.
 
-From `<Linux-Build>`, compile and build using the following commands. 
-Note that `<Linux-Build>` should be written as the **full** path in the commands below.
-For example: `cmake -DLUA_LIBRARIES=/home/myuser/luajit/src/libluajit.so -DLUA_INCLUDE_DIR=/home/myuser/luajit/src ../noggit3`
+From `<Linux-Build>`, configure and build using the following commands:
 
 ```bash
-mkdir build
-cd build
-cmake -DLUA_LIBRARIES=<Linux-Build>/luajit/src/libluajit.so -DLUA_INCLUDE_DIR=<Linux-Build>/luajit/src ../noggit3
-make -j $(nproc)
+cmake -S noggit3 -B build -G Ninja -DCMAKE_BUILD_TYPE=RelWithDebInfo
+cmake --build build --parallel "$(nproc)"
 ```
 
-Instead of `make -j $(nproc)` you may want to pick a bigger number than
-`$(nproc)`, e.g. the number of `CPU cores * 1.5`.
+For scripting support, also pass `-DNOGGIT_WITH_SCRIPTING=ON`,
+`-DLUA_LIBRARIES=<Linux-Build>/luajit/src/libluajit.so`, and
+`-DLUA_INCLUDE_DIR=<Linux-Build>/luajit/src` when configuring.
 
 From `<Linux-Build>/build`, if the build pass correctly without errors, you can install the default lua scripts using:
 ```bash

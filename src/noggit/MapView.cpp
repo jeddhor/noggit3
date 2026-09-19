@@ -49,6 +49,7 @@
 #include <QtCore/QTimer>
 #include <QtGui/QKeyEvent>
 #include <QtGui/QMouseEvent>
+#include <QtGui/QEnterEvent>
 #include <QtWidgets/QApplication>
 #include <QtWidgets/QMenuBar>
 #include <QtWidgets/QMessageBox>
@@ -2748,7 +2749,7 @@ void MapView::focusOutEvent (QFocusEvent*)
   }
 }
 
-void MapView::enterEvent(QEvent*)
+void MapView::enterEvent(QEnterEvent*)
 {
   // check if noggit is the currently active windows
   if (static_cast<QApplication*>(QApplication::instance())->applicationState() & Qt::ApplicationActive)

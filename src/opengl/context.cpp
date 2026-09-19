@@ -9,7 +9,7 @@
 
 #include <QtCore/QSysInfo>
 #include <QtGui/QOpenGLFunctions>
-#include <QtOpenGLExtensions/QOpenGLExtensions>
+#include <QtOpenGL/QOpenGLVersionFunctionsFactory>
 
 #include <functional>
 #include <memory>
@@ -18,27 +18,11 @@
 
 opengl::context gl;
 
-#ifdef USE_BINDLESS_TEXTURES
-#include <opengl/arb_bindless_texture_ext.hpp>
-#endif
-
 namespace opengl
 {
   namespace
   {
     std::size_t inside_gl_begin_end = 0;
-
-    template<typename Extension> struct extension_traits;
-    template<> struct extension_traits<QOpenGLExtension_ARB_vertex_program>
-    {
-      static constexpr char const* const name = "GL_ARB_vertex_program";
-    };
-#ifdef USE_BINDLESS_TEXTURES
-    template<> struct extension_traits<QOpenGLExtension_ARB_bindless_texture>
-    {
-      static constexpr char const* const name = "GL_ARB_bindless_texture";
-    };
-#endif
 
     struct verify_context_and_check_for_gl_errors
     {
@@ -65,26 +49,21 @@ namespace opengl
         : verify_context_and_check_for_gl_errors (current_context, function, &verify_context_and_check_for_gl_errors::no_extra_info)
       {}
 
-      template<typename Functions>
-        Functions* version_functions() const
+      template<typename Function>
+        Function extension_function(char const* extension, char const* function) const
       {
-        Functions* f (_current_context->versionFunctions<Functions>());
-        if (!f)
+        if (!_current_context->hasExtension(extension))
         {
-          throw std::runtime_error (std::string(_function) + ": requires OpenGL functions for version " + typeid (Functions).name());
+          throw std::runtime_error(std::string(_function) + ": requires OpenGL extension " + extension);
         }
-        return f;
-      }
-      template<typename Extension>
-        std::unique_ptr<Extension> extension_functions() const
-      {
-        if (!_current_context->hasExtension (extension_traits<Extension>::name))
+
+        QFunctionPointer address = _current_context->getProcAddress(function);
+        if (!address)
         {
-          throw std::runtime_error (std::string(_function) + ": requires OpenGL extension " + extension_traits<Extension>::name);
+          throw std::runtime_error(std::string(_function) + ": could not resolve OpenGL function " + function);
         }
-        std::unique_ptr<Extension> functions (new Extension());
-        functions->initializeOpenGLFunctions();
-        return functions;
+
+        return reinterpret_cast<Function>(address);
       }
 
       QOpenGLContext* _current_context;
@@ -150,7 +129,7 @@ namespace opengl
     , _old_core_func (context_._4_1_core_func)
   {
     _context._current_context = current_context;
-    _context._4_1_core_func = current_context->versionFunctions<QOpenGLFunctions_4_1_Core>();
+    _context._4_1_core_func = QOpenGLVersionFunctionsFactory::get<QOpenGLFunctions_4_1_Core>(current_context);
 
     if (!_context._4_1_core_func)
     {
@@ -347,12 +326,14 @@ namespace opengl
   GLuint64 context::getTextureHandleARB(GLuint texture)
   {
     verify_context_and_check_for_gl_errors const _ (_current_context, __func__);
-    return _.extension_functions<QOpenGLExtension_ARB_bindless_texture>()->glGetTextureHandleARB(texture);
+    using function_type = GLuint64 (QOPENGLF_APIENTRYP)(GLuint);
+    return _.extension_function<function_type>("GL_ARB_bindless_texture", "glGetTextureHandleARB")(texture);
   }
   void context::makeTextureHandleResidentARB(GLuint64 handle)
   {
     verify_context_and_check_for_gl_errors const _ (_current_context, __func__);
-    _.extension_functions<QOpenGLExtension_ARB_bindless_texture>()->glMakeTextureHandleResidentARB(handle);
+    using function_type = void (QOPENGLF_APIENTRYP)(GLuint64);
+    _.extension_function<function_type>("GL_ARB_bindless_texture", "glMakeTextureHandleResidentARB")(handle);
   }
 #endif
   void context::texParameteri (GLenum target, GLenum pname, GLint param)
@@ -505,17 +486,20 @@ namespace opengl
   void context::genPrograms (GLsizei count, GLuint* programs)
   {
     verify_context_and_check_for_gl_errors const _ (_current_context, __func__);
-    return _.extension_functions<QOpenGLExtension_ARB_vertex_program>()->glGenProgramsARB (count, programs);
+    using function_type = void (QOPENGLF_APIENTRYP)(GLsizei, GLuint*);
+    return _.extension_function<function_type>("GL_ARB_vertex_program", "glGenProgramsARB") (count, programs);
   }
   void context::deletePrograms (GLsizei count, GLuint* programs)
   {
     verify_context_and_check_for_gl_errors const _ (_current_context, __func__);
-    return _.extension_functions<QOpenGLExtension_ARB_vertex_program>()->glDeleteProgramsARB (count, programs);
+    using function_type = void (QOPENGLF_APIENTRYP)(GLsizei, GLuint*);
+    return _.extension_function<function_type>("GL_ARB_vertex_program", "glDeleteProgramsARB") (count, programs);
   }
   void context::bindProgram (GLenum target, GLuint program)
   {
     verify_context_and_check_for_gl_errors const _ (_current_context, __func__);
-    return _.extension_functions<QOpenGLExtension_ARB_vertex_program>()->glBindProgramARB (target, program);
+    using function_type = void (QOPENGLF_APIENTRYP)(GLenum, GLuint);
+    return _.extension_function<function_type>("GL_ARB_vertex_program", "glBindProgramARB") (target, program);
   }
   void context::programString (GLenum target, GLenum format, GLsizei len, GLvoid const* pointer)
   {
@@ -529,7 +513,8 @@ namespace opengl
           return " at " + std::to_string (error_position) + ": " + reinterpret_cast<char const*> (getString (GL_PROGRAM_ERROR_STRING_ARB));
         }
       );
-    return _.extension_functions<QOpenGLExtension_ARB_vertex_program>()->glProgramStringARB (target, format, len, pointer);
+    using function_type = void (QOPENGLF_APIENTRYP)(GLenum, GLenum, GLsizei, GLvoid const*);
+    return _.extension_function<function_type>("GL_ARB_vertex_program", "glProgramStringARB") (target, format, len, pointer);
   }
   void context::getProgramiv (GLuint program, GLenum pname, GLint* params)
   {
@@ -539,7 +524,8 @@ namespace opengl
   void context::programLocalParameter4f (GLenum target, GLuint index, GLfloat x, GLfloat y, GLfloat z, GLfloat w)
   {
     verify_context_and_check_for_gl_errors const _ (_current_context, __func__);
-    return _.extension_functions<QOpenGLExtension_ARB_vertex_program>()->glProgramLocalParameter4fARB (target, index, x, y, z, w);
+    using function_type = void (QOPENGLF_APIENTRYP)(GLenum, GLuint, GLfloat, GLfloat, GLfloat, GLfloat);
+    return _.extension_function<function_type>("GL_ARB_vertex_program", "glProgramLocalParameter4fARB") (target, index, x, y, z, w);
   }
 
   void context::getBooleanv (GLenum target, GLboolean* value)

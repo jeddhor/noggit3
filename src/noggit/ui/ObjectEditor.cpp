@@ -314,7 +314,7 @@ namespace noggit
 
       pasteModeGroup->button(pasteMode)->setChecked(true);
 
-      connect ( pasteModeGroup, qOverload<int> (&QButtonGroup::buttonClicked)
+      connect ( pasteModeGroup, &QButtonGroup::idClicked
               , [&] (int id)
                 {
                     pasteMode = id;

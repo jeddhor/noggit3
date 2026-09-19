@@ -77,7 +77,7 @@ namespace noggit
     std::map<int, QFont> font_awesome_icon_engine::_fonts = {};
 
     font_awesome_icon::font_awesome_icon (font_awesome::icons const& icon)
-      : QIcon (new font_awesome_icon_engine (QString (QChar (icon))))
+      : QIcon (new font_awesome_icon_engine (QString (QChar (static_cast<char16_t>(icon)))))
     {}
   }
 }

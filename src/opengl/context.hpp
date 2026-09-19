@@ -4,7 +4,7 @@
 
 #include <opengl/types.hpp>
 
-#include <QtGui/QOpenGLFunctions_4_1_Core>
+#include <QtOpenGL/QOpenGLFunctions_4_1_Core>
 
 namespace opengl
 {

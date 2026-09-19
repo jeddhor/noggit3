@@ -14,9 +14,9 @@ jobs:
             compiler: clang++-18
             compiler_c: clang-18
             extra_cmake_args: -GNinja
-          - platform: windows-2019
-            compiler: msvc2019 ## == vs 16
-            compiler_c: msvc2019
+          - platform: windows-2022
+            compiler: cl ## MSVC 2022 == vs 17
+            compiler_c: cl
             extra_cmake_args:
     runs-on: ${{ matrix.platform }}
     name: ${{ matrix.platform }}-${{ matrix.compiler }}
@@ -33,15 +33,15 @@ jobs:
       run: sudo apt update && sudo apt install ninja-build
       if: ${{ matrix.platform == 'ubuntu-24.04' }}
 
-    - name: "dependency: qt5 (linux)"
-      run: sudo apt update && sudo apt install -y qtbase5-dev
+    - name: "dependency: qt6 (linux)"
+      run: sudo apt update && sudo apt install -y qt6-base-dev libqt6opengl6-dev
       if: ${{ matrix.platform == 'ubuntu-24.04' }}
-    - name: "dependency: qt5 (windows)"
+    - name: "dependency: qt6 (windows)"
       uses: jurplel/install-qt-action@v4
       with:
-        version: 5.15.1
-        arch: win64_msvc2019_64
-      if: ${{ matrix.platform == 'windows-2019' }}
+        version: 6.8.3
+        arch: win64_msvc2022_64
+      if: ${{ matrix.platform == 'windows-2022' }}
 
     - name: "dependency: bzip2 (linux, stormlib)"
       run: sudo apt update && sudo apt install libbz2-dev
@@ -83,28 +83,29 @@ jobs:
 
     - run: |
         mkdir dependencies/
-        cp -av "${{ env.QT_ROOT_DIR }}/bin/Qt5Core.dll" dependencies/
-        cp -av "${{ env.QT_ROOT_DIR }}/bin/Qt5Gui.dll" dependencies/
-        cp -av "${{ env.QT_ROOT_DIR }}/bin/Qt5OpenGL.dll" dependencies/
-        cp -av "${{ env.QT_ROOT_DIR }}/bin/Qt5Widgets.dll" dependencies/
-      if: ${{ matrix.platform == 'windows-2019' }}
+        cp -av "${{ env.QT_ROOT_DIR }}/bin/Qt6Core.dll" dependencies/
+        cp -av "${{ env.QT_ROOT_DIR }}/bin/Qt6Gui.dll" dependencies/
+        cp -av "${{ env.QT_ROOT_DIR }}/bin/Qt6OpenGL.dll" dependencies/
+        cp -av "${{ env.QT_ROOT_DIR }}/bin/Qt6OpenGLWidgets.dll" dependencies/
+        cp -av "${{ env.QT_ROOT_DIR }}/bin/Qt6Widgets.dll" dependencies/
+      if: ${{ matrix.platform == 'windows-2022' }}
       shell: bash
     - run: |
         mkdir dependencies/plugins/
         cp -av "${{ env.QT_PLUGIN_PATH }}/" dependencies/
-      if: ${{ matrix.platform == 'windows-2019' }}
+      if: ${{ matrix.platform == 'windows-2022' }}
       shell: bash
 
     - uses: vimtor/action-zip@v1
       with:
         dest: noggit-${{ matrix.platform }}-${{ matrix.compiler }}-dependencies-${{ github.sha }}.zip
         files: dependencies/
-      if: ${{ matrix.platform == 'windows-2019' }}
+      if: ${{ matrix.platform == 'windows-2022' }}
     - uses: actions/upload-artifact@v4
       with:
         name: ${{ matrix.platform }}-${{ matrix.compiler }}-dependencies
         path: noggit-${{ matrix.platform }}-${{ matrix.compiler }}-dependencies-${{ github.sha }}.zip
-      if: ${{ matrix.platform == 'windows-2019' }}
+      if: ${{ matrix.platform == 'windows-2022' }}
 
     - uses: vimtor/action-zip@v1
       with:

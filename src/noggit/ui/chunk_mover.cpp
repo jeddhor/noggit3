@@ -96,7 +96,7 @@ namespace noggit::ui
     layout->addRow(param_group);
 
 
-    connect ( height_mode_group, qOverload<int> (&QButtonGroup::buttonClicked)
+    connect ( height_mode_group, &QButtonGroup::idClicked
             , [&] (int id)
               {
                 _height_mode = static_cast<chunk_override_params::height_mode>(id);

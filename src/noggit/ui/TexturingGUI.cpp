@@ -128,7 +128,7 @@ namespace noggit
       connect ( filter, &QComboBox::currentTextChanged
               , [=] (QString text)
                 {
-                  search_filter->setFilterRegExp (text);
+                  search_filter->setFilterRegularExpression (text);
                 }
               );
 
@@ -137,7 +137,7 @@ namespace noggit
       connect ( only_specular, &QCheckBox::toggled
               , [=] (bool on)
                 {
-                  specular_filter->setFilterRegExp (on ? "true" : "");
+                  specular_filter->setFilterRegularExpression (on ? "true" : "");
                 }
               );
       only_specular->setChecked (true);
