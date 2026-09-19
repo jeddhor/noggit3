@@ -1272,10 +1272,6 @@ void World::draw ( math::matrix_4x4 const& model_view
       wmo_program.uniform("camera", camera_pos);
     }
 
-    wmo_program.uniform("exterior_light_dir", light_dir);
-    wmo_program.uniform("exterior_diffuse_color", diffuse_color);
-    wmo_program.uniform("exterior_ambient_color", ambient_color);
-
     wmo_group_uniform_data wmo_uniform_data;
 
 

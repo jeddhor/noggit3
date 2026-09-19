@@ -40,12 +40,6 @@ layout (std140) uniform render_data
   batch_uniforms data[96];
 };
 
-uniform vec3 exterior_light_dir;
-uniform vec3 exterior_diffuse_color;
-uniform vec3 exterior_ambient_color;
-uniform vec3 ambient_color;
-
-
 in vec3 f_position;
 in vec3 f_normal;
 in vec2 f_texcoord;
@@ -56,25 +50,10 @@ out vec4 out_color;
 
 vec3 lighting(vec3 material)
 {
-  vec3 light_color = vec3(1.);
-  vec3 vertex_color = data[index].use_vertex_color != 0 ? f_vertex_color.rgb : vec3(0.);
-
-  if(data[index].unlit != 0)
-  {
-    light_color = vertex_color + (data[index].exterior_lit != 0 ? exterior_ambient_color : ambient_color);
-  }
-  else if(data[index].exterior_lit != 0)
-  {
-    vec3 ambient = exterior_ambient_color + vertex_color.rgb;
-
-    light_color = vec3(clamp (exterior_diffuse_color * max(dot(f_normal, exterior_light_dir), 0.0), 0.0, 1.0)) + ambient;
-  }
-  else
-  {
-    light_color = ambient_color + vertex_color.rgb;
-  }  
-
-  return material * light_color;
+  // The legacy WMO lighting data is not reliable for every client asset and
+  // can produce severe color casts and unstable overbright fragments. Preserve
+  // the authored WMO texture colors in the editor instead.
+  return material;
 }
 
 void main()
@@ -115,7 +94,7 @@ void main()
   vec4 vertex_color = vec4(0., 0., 0., 1.f);
   vec3 light_color = vec3(1.);
 
-  if(data[index].use_vertex_color != 0) 
+  if(data[index].use_vertex_color != 0)
   {
     vertex_color = f_vertex_color;
   }
@@ -139,11 +118,11 @@ void main()
   else if(shader == 6) // TwoLayerDiffuse
   {
     vec3 layer2 = mix(tex.rgb, tex_2.rgb, tex_2.a);
-    out_color = vec4(lighting(mix(layer2, tex.rgb, vertex_color.a)), tex.a);
+    out_color = vec4(lighting(mix(layer2, tex.rgb, vertex_color.a)), 1.);
   }
   else // default shader, used for shader_id 0,1,2,4 (Diffuse, Specular, Metal, Opaque)
   {
-    out_color = vec4(lighting(tex.rgb), tex.a);
+    out_color = vec4(lighting(tex.rgb), 1.);
   }
 
   if(fog && (dist_from_camera >= fog_end * fog_start))

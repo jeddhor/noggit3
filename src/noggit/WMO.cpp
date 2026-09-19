@@ -432,8 +432,6 @@ void WMO::draw_instanced( opengl::scoped::use_program& wmo_shader
 
   opengl::scoped::vao_binder const _ (_vao);
 
-  wmo_shader.uniform("ambient_color", ambient_light_color.xyz());
-
   for (auto& group : groups)
   {
     group.draw( wmo_shader
